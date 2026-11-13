@@ -33,8 +33,7 @@ L'objectif métier est de produire une édition matinale synthétique permettant
 * **Légale et Éthique :** Respect strict des conditions générales d'utilisation (CGU) des éditeurs (usage non commercial), en-tête `User-Agent` clair et explicite, et temporisation obligatoire (**pause de 1 seconde** entre chaque source). Zéro donnée personnelle.
 * **Sécurité :** L'interface web de Cronicle (`http://localhost:3012`) est publiée uniquement sur l'interface locale (`127.0.0.1`), protégée par mot de passe (`CRONICLE_ADMIN_PASSWORD` injecté via `.env` non versionné, remplaçant le mot de passe par défaut `admin/admin` dès le premier démarrage). Aucun accès à `/var/run/docker.sock` n'est requis.
 * **Budgétaire (FinOps) :** Budget **0 €**. Développement et exécution initiale sur les machines locales de l'équipe (Docker), avant migration sur l'infrastructure fournie par l'école (TD 4/6).
-* **Reproductibilité :** Versions épinglées (ex. `CRONICLE_VERSION=0.9.145`), initialisation automatisée au démarrage (`infra/cronicle/entrypoint.sh` + `infra/cronicle/bootstrap_event.py`) et déploiement via Git et Docker.
-* **Base SQL :** Postgres 17 est declare dans `docker-compose.yml` (volume `postgres_data`, healthcheck) pour la future couche gold ; le collecteur ne l'utilise pas encore.
+* **Reproductibilité :** Versions épinglées (ex. `CRONICLE_VERSION=0.9.145`), initialisation automatisée au démarrage (`entrypoint.sh` + `docker/bootstrap_event.py`) et déploiement via Git et Docker.
 
 ---
 
@@ -104,7 +103,7 @@ flowchart LR
 
 ### 5.2. Ordonnancement et Architecture de la Tâche 1
 * **Stack retenue :** **Conteneur unique `cronicle` (Cronicle `0.9.145` + Python)**.
-  * *Initialisation automatique :* Au premier démarrage, `infra/cronicle/entrypoint.sh` initialise Cronicle (remplacement du mot de passe par défaut via `CRONICLE_ADMIN_PASSWORD`) et `infra/cronicle/bootstrap_event.py` crée automatiquement l'événement **`Gazette : collecte quotidienne`** (tous les jours à `07h00 Europe/Paris`, commande `python -m collector.collect`, `max_children: 1` pour garantir un seul run simultané, `0` relance côté Cronicle car gérées dans `fetch.py`, et option **Run All / Catch-Up** activée).
+  * *Initialisation automatique :* Au premier démarrage, `entrypoint.sh` initialise Cronicle (remplacement du mot de passe par défaut via `CRONICLE_ADMIN_PASSWORD`) et `docker/bootstrap_event.py` crée automatiquement l'événement **`Gazette : collecte quotidienne`** (tous les jours à `07h00 Europe/Paris`, commande `python -m collector.collect`, `max_children: 1` pour garantir un seul run simultané, `0` relance côté Cronicle car gérées dans `fetch.py`, et option **Run All / Catch-Up** activée).
 * **Justification :** Embarquer Python et Cronicle dans le même conteneur évite d'avoir à monter le socket Docker (`/var/run/docker.sock`), supprimant ainsi une faille de sécurité majeure. De plus, l'interface web (`http://localhost:3012`) fournit nativement l'historique et les logs de chaque run.
 * **Alternatives écartées :**
   * *Ofelia* : Nécessite un accès direct au socket Docker (`/var/run/docker.sock`) pour piloter des conteneurs frères, ce qui pose des problèmes de sécurité et de droits sur l'infrastructure cible.
@@ -178,11 +177,11 @@ Conformément aux exigences (minimum 4 PQN et 4 PQR), voici les 8 flux RSS ident
 L'équipe est composée de deux membres qui se répartissent la conception, le développement et la veille technique des six briques :
 
 * **Lucas :**
-  * **Sujet 1 — Collecte :** Développement du module `collector.collect`, gestion des retries dans `fetch.py`, script `check_feeds`, respect des CGU (pause 1s, `User-Agent`) et alimentation de la couche Bronze (`JSON` + `last_run.json`).
-  * **Sujet 2 — Ordonnancement :** Configuration de Cronicle `0.9.145`, scripts d'initialisation (`infra/cronicle/entrypoint.sh`, `infra/cronicle/bootstrap_event.py`), paramétrage du planning quotidien (`07h00 Europe/Paris`) et de l'option *Catch-Up*.
-  * **Sujet 6 — Infrastructure as Code :** Rédaction du `Dockerfile` unifié (Python + Cronicle), du `docker-compose.yml` global, gestion des secrets (`.env`) et persistance des volumes (`cronicle_data`).
+  * **Sujet 1 : Collecte :** Développement du module `collector.collect`, gestion des retries dans `fetch.py`, script `check_feeds`, respect des CGU (pause 1s, `User-Agent`) et alimentation de la couche Bronze (`JSON` + `last_run.json`).
+  * **Sujet 2 : Ordonnancement :** Configuration de Cronicle `0.9.145`, scripts d'initialisation (`entrypoint.sh`, `docker/bootstrap_event.py`), paramétrage du planning quotidien (`07h00 Europe/Paris`) et de l'option *Catch-Up*.
+  * **Sujet 6 : Infrastructure as Code :** Rédaction du `Dockerfile` unifié (Python + Cronicle), du `docker-compose.yml` global, gestion des secrets (`.env`) et persistance des volumes (`cronicle_data`).
 
 * **Vincent :**
-  * **Sujet 3 — Stockage & Qualité :** Implémentation du dédoublonnage sur `url_hash` (Silver CSV), déploiement de MinIO et de la base SQL (Gold), et filtrage temporel (`< 24h`).
-  * **Sujet 4 — Regroupement thématique (NLP) :** Conception du pipeline TF-IDF + K-Means et instrumentation des expériences via MLflow.
-  * **Sujet 5 — Supervision :** Configuration de la stack Prometheus + Grafana, exposition des métriques applicatives et création des tableaux de bord d'alerte.
+  * **Sujet 3 : Stockage & Qualité :** Implémentation du dédoublonnage sur `url_hash` (Silver CSV), déploiement de MinIO et de la base SQL (Gold), et filtrage temporel (`< 24h`).
+  * **Sujet 4 : Regroupement thématique (NLP) :** Conception du pipeline TF-IDF + K-Means et instrumentation des expériences via MLflow.
+  * **Sujet 5 : Supervision :** Configuration de la stack Prometheus + Grafana, exposition des métriques applicatives et création des tableaux de bord d'alerte.
