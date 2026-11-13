@@ -1,0 +1,4 @@
+requests==2.34.2
+feedparser==6.0.14
+pyyaml==6.0.3
+pytest==9.2.0

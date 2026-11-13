@@ -1,0 +1,15 @@
+services:
+  cronicle:
+    build: .
+    hostname: cronicle
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:3012:3012"   # interface web Cronicle, locale uniquement
+    volumes:
+      - ./data:/app/data                    # bronze, silver, state
+      - cronicle_data:/opt/cronicle/data    # planning et historique Cronicle
+    restart: unless-stopped
+
+volumes:
+  cronicle_data:
