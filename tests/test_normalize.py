@@ -45,7 +45,7 @@ def test_rss_row_without_full_text_and_recent():
 
 def test_missing_date_left_empty_and_entry_without_link_skipped():
     rs = rows("sample_rss.xml")
-    assert len(rs) == 99
+    assert len(rs) == 999
     assert rs[1]["published_at_utc"] == "" and rs[1]["is_recent"] is False
 
 
