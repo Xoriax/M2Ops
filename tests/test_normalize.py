@@ -5,8 +5,7 @@ import feedparser
 import requests
 
 from collector.fetch import fetch_feed
-from collector.normalize import (EXCERPT_MAX, canonical_url, make_excerpt, normalize_entry,
-                                 url_hash)
+from collector.normalize import EXCERPT_MAX, canonical_url, make_excerpt, normalize_entry, url_hash
 from collector.storage import FileStorage
 
 FIX = Path(__file__).parent / "fixtures"

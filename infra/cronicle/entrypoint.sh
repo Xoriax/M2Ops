@@ -21,6 +21,6 @@ fi
 node bin/storage-cli.js admin admin "${CRONICLE_ADMIN_PASSWORD:?definir CRONICLE_ADMIN_PASSWORD dans .env}"
 
 # cree l'evenement de collecte une fois le serveur pret (en arriere-plan)
-python /app/docker/bootstrap_event.py &
+python /app/infra/cronicle/bootstrap_event.py &
 
 exec node lib/main.js

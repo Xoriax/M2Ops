@@ -1,9 +1,0 @@
-sources:
-  - {name: New York Times, type: PQN, region: national, feed_url: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"}
-  - {name: Washington Post, type: PQN, region: national, feed_url: "https://feeds.washingtonpost.com/rss/national"}
-  - {name: Wall Street Journal, type: PQN, region: national, feed_url: "https://feeds.content.dowjones.io/public/rss/RSSWorldNews"}
-  - {name: New York Post, type: PQN, region: national, feed_url: "https://nypost.com/feed/"}
-  - {name: Los Angeles Times, type: PQR, region: California, feed_url: "https://www.latimes.com/rss2.0.xml"}
-  - {name: Plain Dealer (cleveland.com), type: PQR, region: Ohio, feed_url: "https://www.cleveland.com/arc/outboundfeeds/rss/"}
-  - {name: Seattle Times, type: PQR, region: Washington, feed_url: "https://www.seattletimes.com/seattle-news/feed/"}
-  - {name: Houston Chronicle, type: PQR, region: Texas, feed_url: "https://www.chron.com/rss/feed/News-270.php"}

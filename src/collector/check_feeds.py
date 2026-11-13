@@ -1,14 +1,12 @@
 """Verifie que chaque flux repond et est frais : python -m collector.check_feeds"""
 import sys
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
 
 import feedparser
-import yaml
 
 from collector.fetch import fetch_feed
+from collector.sources import load_sources
 
-CONFIG = Path("config/sources.yaml")
 MAX_AGE = timedelta(days=7)
 
 
@@ -22,7 +20,7 @@ def entry_dates(parsed):
 
 
 def main():
-    sources = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))["sources"]
+    sources = load_sources()
     failures = 0
     for s in sources:
         res = fetch_feed(s["feed_url"])

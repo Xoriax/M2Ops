@@ -1,0 +1,9 @@
+name,type,region,feed_url
+New York Times,PQN,national,https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml
+Washington Post,PQN,national,https://feeds.washingtonpost.com/rss/national
+Wall Street Journal,PQN,national,https://feeds.content.dowjones.io/public/rss/RSSWorldNews
+New York Post,PQN,national,https://nypost.com/feed/
+Los Angeles Times,PQR,California,https://www.latimes.com/rss2.0.xml
+Plain Dealer (cleveland.com),PQR,Ohio,https://www.cleveland.com/arc/outboundfeeds/rss/
+Seattle Times,PQR,Washington,https://www.seattletimes.com/seattle-news/feed/
+Houston Chronicle,PQR,Texas,https://www.chron.com/rss/feed/News-270.php

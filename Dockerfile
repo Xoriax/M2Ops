@@ -8,34 +8,40 @@ RUN curl -fsSL https://github.com/jhuckaby/Cronicle/archive/refs/tags/v${CRONICL
     | tar xz --strip-components 1 \
     && npm install \
     && node bin/build.js dist \
-    && cp sample_conf/config.json conf/config.json
+    && cp sample_conf/config.json conf/config.json \
+    && rm -rf node_modules/.cache docs sample_conf
 
-# Etape 2 : Python (collecteur) + Node (pour Cronicle)
-FROM python:3.12-slim
-
+# Etape 2 : image d'execution (Python + binaire Node pour Cronicle), utilisateur non root
+FROM python:3.12-slim AS runtime
 ENV TZ=Europe/Paris \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app/src \
     HOSTNAME=cronicle
-
 COPY --from=cronicle-build /usr/local/bin/node /usr/local/bin/node
 COPY --from=cronicle-build /opt/cronicle /opt/cronicle
-
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
 COPY config ./config
 COPY src ./src
-COPY tests ./tests
-COPY pytest.ini entrypoint.sh ./
-COPY docker/bootstrap_event.py ./docker/bootstrap_event.py
-RUN chmod +x entrypoint.sh \
+COPY infra ./infra
+RUN chmod +x infra/cronicle/entrypoint.sh \
     && useradd --create-home --uid 1000 app \
     && mkdir -p /app/data /opt/cronicle/data /opt/cronicle/logs /opt/cronicle/queue \
     && chown -R app:app /app /opt/cronicle
-
 USER app
 EXPOSE 3012
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["./infra/cronicle/entrypoint.sh"]
+
+# Etape 3 (dev et CI) : runtime + outils de test et de lint
+FROM runtime AS dev
+USER root
+COPY requirements-dev.txt .
+RUN pip install --no-cache-dir -r requirements-dev.txt
+COPY tests ./tests
+COPY pytest.ini ruff.toml ./
+RUN chown -R app:app /app
+USER app
+
+# L'image publiee par la CI est "runtime" (--target runtime) ; "dev" sert a bin/dev et bin/test.

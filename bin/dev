@@ -1,0 +1,6 @@
+#!/bin/sh
+# Lance tout l'environnement de dev (Cronicle + Postgres). Interface : http://localhost:3012
+set -e
+cd "$(dirname "$0")/.."
+[ -f .env ] || { cp .env.example .env; echo "[bin/dev] .env cree depuis .env.example (pensez a changer CRONICLE_ADMIN_PASSWORD)"; }
+exec docker compose up --build "$@"

@@ -8,12 +8,12 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
-import yaml
 
 from collector.collect import collect_source
+from collector.sources import load_sources
 from collector.storage import FileStorage
 
-SOURCES = yaml.safe_load((Path(__file__).parent.parent / "config" / "sources.yaml").read_text(encoding="utf-8"))["sources"]
+SOURCES = load_sources(Path(__file__).parent.parent / "config" / "sources.csv")
 
 pytestmark = pytest.mark.skipif(os.environ.get("RUN_LIVE") != "1", reason="test en ligne : definir RUN_LIVE=1")
 

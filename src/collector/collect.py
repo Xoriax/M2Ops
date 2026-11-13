@@ -3,17 +3,15 @@ import os
 import sys
 import time
 from datetime import datetime, timezone
-from pathlib import Path
 
 import feedparser
 import requests
-import yaml
 
 from collector.fetch import fetch_feed
 from collector.normalize import normalize_entry
+from collector.sources import load_sources
 from collector.storage import FileStorage
 
-CONFIG = Path(os.environ.get("SOURCES_FILE", "config/sources.yaml"))
 DATA_DIR = os.environ.get("DATA_DIR", "data")
 PAUSE_BETWEEN_SOURCES = 1.0
 
@@ -49,7 +47,7 @@ def collect_source(source, store, etags, now):
 
 def main():
     started = datetime.now(timezone.utc)
-    sources = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))["sources"]
+    sources = load_sources()
     store = FileStorage(DATA_DIR)
     etags = store.read_state("etags.json")
     day = started.strftime("%Y-%m-%d")

@@ -1,0 +1,6 @@
+#!/bin/sh
+# Lint (ruff) puis tests (pytest) dans le conteneur, sans reseau. Tests en ligne : RUN_LIVE=1 bin/test
+set -e
+cd "$(dirname "$0")/.."
+[ -f .env ] || cp .env.example .env
+docker compose run --rm --no-deps --entrypoint sh -e RUN_LIVE="${RUN_LIVE:-0}" cronicle -c "ruff check . && python -m pytest -q"

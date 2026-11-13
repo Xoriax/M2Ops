@@ -8,6 +8,8 @@ import urllib.request
 
 BASE = "http://127.0.0.1:3012/api"
 EVENT_ID = "gazettecollect"
+# collecte, puis alerte webhook (si ALERT_WEBHOOK_URL) ; le code de sortie de la collecte est conserve
+SCRIPT = "#!/bin/sh\ncd /app\npython -m collector.collect\nrc=$?\npython -m collector.alert $rc\nexit $rc\n"
 EVENT = {
     "id": EVENT_ID,
     "title": "Gazette : collecte quotidienne",
@@ -21,8 +23,7 @@ EVENT = {
     "max_children": 1,   # jamais deux collectes en parallele
     "retries": 0,
     "timeout": 1800,
-    "params": {"script": "#!/bin/sh\ncd /app && exec python -m collector.collect\n",
-               "annotate": 1, "json": 0},
+    "params": {"script": SCRIPT, "annotate": 1, "json": 0},
 }
 
 
@@ -56,7 +57,10 @@ def main():
     for _ in range(60):  # attend d'etre primaire (create_event refuse sinon)
         existing = call("app/get_event/v1", params={"id": EVENT_ID, "session_id": sid})
         if existing.get("code") == 0:
-            print("[bootstrap] evenement deja present")
+            # le script suit le depot ; le planning, lui, reste celui de l'interface
+            upd = call("app/update_event/v1", {"id": EVENT_ID, "params": EVENT["params"], "session_id": sid})
+            print("[bootstrap] evenement deja present, script synchronise" if upd.get("code") == 0
+                  else f"[bootstrap] synchro du script impossible : {upd.get('description')}")
             return 0
         created = call("app/create_event/v1", {**EVENT, "session_id": sid})
         if created.get("code") == 0:

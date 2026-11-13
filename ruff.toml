@@ -1,0 +1,6 @@
+line-length = 120
+target-version = "py312"
+src = ["src", "tests", "infra"]
+
+[lint]
+select = ["E", "F", "W", "I", "B"]

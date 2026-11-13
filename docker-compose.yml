@@ -1,6 +1,8 @@
 services:
   cronicle:
-    build: .
+    build:
+      context: .
+      target: dev
     hostname: cronicle
     env_file:
       - .env
@@ -9,7 +11,27 @@ services:
     volumes:
       - ./data:/app/data                    # bronze, silver, state
       - cronicle_data:/opt/cronicle/data    # planning et historique Cronicle
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Base SQL (couche gold, plus tard). Pas encore utilisee par le collecteur.
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-gazette}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gazette}
+      POSTGRES_DB: ${POSTGRES_DB:-gazette}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gazette} -d ${POSTGRES_DB:-gazette}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     restart: unless-stopped
 
 volumes:
   cronicle_data:
+  postgres_data:
