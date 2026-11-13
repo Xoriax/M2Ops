@@ -31,4 +31,4 @@ Lint et tests doivent passer. Un test casse rend la CI rouge, et une CI rouge ne
 
 ## Reglages GitHub a activer (admin du depot)
 
-Settings > Branches > regle sur `main` : exiger une Pull Request, exiger le statut "lint + tests" (et "build + push image"), interdire le push direct. C'est ce reglage qui fait qu'une CI rouge bloque le merge.
+Settings > Branches > regle sur `main` : exiger une Pull Request, exiger les statuts "lint + tests" et "build + push image", interdire le push direct. C'est ce reglage qui fait qu'une CI rouge bloque le merge.
